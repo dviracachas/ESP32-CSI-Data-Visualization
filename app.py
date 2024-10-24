@@ -15,15 +15,23 @@ st.set_page_config(
 st.title("📡 ESP32 CSI-Data Visualization")
 
 # Initialize dataframe
-csv_header = 'type,role,mac,rssi,rate,sig_mode,mcs,bandwidth,smoothing,not_sounding,aggregation,stbc,fec_coding,sgi,rssi,ampdu_cnt,channel,secondary_channel,local_timestamp,ant,sig_len,rx_state,real_time_set,real_timestamp,len,CSI_DATA\n'
+csv_header = 'type,role,mac,rssi,rate,sig_mode,mcs,bandwidth,smoothing,not_sounding,aggregation,stbc,fec_coding,sgi,noise_floor,ampdu_cnt,channel,secondary_channel,local_timestamp,ant,sig_len,rx_state,real_time_set,real_timestamp,len,CSI_DATA\n'
 df = pd.read_csv(StringIO(csv_header))
 
 # Dashboard
 with st.sidebar:
     st.header("⚙ Settings")
+
+
     # Port configuration
     listening_port = st.selectbox("Select the port of the ESP32:", list(serial.tools.list_ports.comports()))
     baudrate = st.selectbox("Configure the baud rate:", [921600, 1152000])
+    st.divider()
+    # Variable selection
+    graph_var_x = st.selectbox("Select the variable of the x-axis:", df.columns, index=23)
+    graph_var_y = st.selectbox("Select the variable of the y-axis:", df.columns, index=3)
+
+    st.divider()
 
     # Port usage
     st.session_state['read_data'] = False
@@ -67,9 +75,9 @@ while st.session_state['read_data']:
     # Render the data visualization objects (during loop)
     with placeholder.container():
         if 'df' in st.session_state.keys():
-            fig = px.line(data_frame=st.session_state.df, x="real_timestamp", y="rssi", title='Noise floor vs. Time')
+            fig = px.line(data_frame=st.session_state.df, x=graph_var_x, y=graph_var_y, title=f'{graph_var_y} vs. {graph_var_x}')
         else:
-            fig = px.line(data_frame=df, x="real_timestamp", y="rssi", title='Noise floor vs. Time')
+            fig = px.line(data_frame=df, x=graph_var_x, y=graph_var_y, title=f'{graph_var_y} vs. {graph_var_x}')
         st.plotly_chart(fig, use_container_width=True, key=f"nf_vs_time{i}")
 
         st.markdown("###### Detailed Data View")
@@ -81,9 +89,9 @@ while st.session_state['read_data']:
 
 # Final data visualization (after reading the serial port)
 if 'df' in st.session_state.keys():
-    fig = px.line(data_frame=st.session_state.df, x="real_timestamp", y="rssi", title='Noise floor vs. Time')
+    fig = px.line(data_frame=st.session_state.df, x=graph_var_x, y=graph_var_y, title=f'{graph_var_y} vs. {graph_var_x}')
 else:
-    fig = px.line(data_frame=df, x="real_timestamp", y="rssi", title='Noise floor vs. Time')
+    fig = px.line(data_frame=df, x=graph_var_x, y=graph_var_y, title=f'{graph_var_y} vs. {graph_var_x}')
 st.plotly_chart(fig, use_container_width=True, key=f"nf_vs_time{i}")
 
 st.markdown("###### Detailed Data View")
