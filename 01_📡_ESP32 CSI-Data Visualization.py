@@ -14,6 +14,7 @@ st.set_page_config(
 )
 
 st.title("📡 ESP32 CSI-Data Visualization")
+st.logo("DKS_logo.png", size="large")
 
 # Initialize dataframe
 ## Two headers are joined this way so that it is easier to concatenate the dataframe later
@@ -63,8 +64,6 @@ with st.sidebar:
             st.session_state['read_data'] = False
             if 'ser' in st.session_state.keys():
                 st.session_state.ser.close()
-
-    st.caption("🐱‍💻 Made with ♥ by David Viracachá")
 
 # Loop to retrieve data
 i = 0 # Index used to provide different keys to the generated objects
@@ -116,3 +115,6 @@ if 'df' in st.session_state.keys():
     st.dataframe(st.session_state.df)
 else:
     st.dataframe(df)
+
+st.divider()
+st.columns(3)[1].caption("🐱‍💻 Made with ♥ by David Viracachá")
